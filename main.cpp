@@ -2,11 +2,61 @@
 #include<GL/gl.h>
 #include<GL/glu.h>
 #include<GL/glut.h>
+#include<gl/freeglut.h>
+
+//Deklarasi fungsi mouse agar gambar 3D dapat diputar menggunakan mouse
+float xrot = 0;
+float yrot = 0;
+float xdiff = 0;
+float ydiff = 0;
+bool mouseDown = false;
+
+//Deklarasi pengaturan lembaran kerja agar gambar 3D yang kita buat saat diputar atau digeser tidak berantakan
+void ukur(int lebar, int tinggi){
+if(tinggi==0) tinggi=1;
+glMatrixMode(GL_PROJECTION);
+glLoadIdentity();
+gluPerspective(45, lebar/tinggi, 5, 450);
+glTranslatef(0,0,-300);//jarak objek dari lembaran kerja
+glMatrixMode(GL_MODELVIEW);
+}
+void myinit(void){
+glClearColor (0.0, 0.0, 0.0, 0.0);
+glMatrixMode (GL_PROJECTION);
+glEnable (GL_DEPTH_TEST);
+
+glMatrixMode (GL_MODELVIEW);
+glPointSize (10.0);
+glLineWidth (7.0f);
+}
+
+void mouse(int button, int state, int x, int y)
+{
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    {
+        mouseDown = true;
+        xdiff = x - yrot;
+        ydiff = -y + xrot;
+    }
+    else
+        mouseDown = false;
+}
+
+void mouseMotion(int x, int y)
+{
+    if (mouseDown)
+    {
+        yrot = x - xdiff;
+        glutPostRedisplay();
+    }
+}
+
 //deklarasi fungsi
 void display();
 void init();
 void reshape(int, int);
 void keyboard(unsigned char, int, int); //+1
+
 //main program
 int main (int argc, char** argv){
  //inisialisasi
@@ -15,18 +65,30 @@ int main (int argc, char** argv){
  glutInitWindowPosition(200, 100); //atur sumbu x dan y
  glutInitWindowSize(500, 500); //atur lebar dan tinggi jendela
  glutCreateWindow("Jendela 1");
- glutDisplayFunc(display); //memanggil fungsi display
- glutReshapeFunc(reshape); //memanggil fungsi reshape
- glutKeyboardFunc(keyboard); // +3 memanggil fungsi keyboard
+
+//Mendaftarkan fungsi callback
+glutDisplayFunc(display); //memanggil fungsi display
+glutReshapeFunc(reshape); //memanggil fungsi reshape
+glutKeyboardFunc(keyboard); // +3 memanggil fungsi keyboard
+glutMouseFunc(mouse); //memamnggil fungsi mouse
+glutMotionFunc(mouseMotion); //memanggil fungsi pergerakan mouse
+
  init();
  glutMainLoop(); //looping program utama
-}void init(){
+}
+void init(){
  glEnable(GL_DEPTH_TEST); //+4
  glClearColor(0.0, 0.0, 0.0, 1.0);
 }
 void display(){
  //reset
  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //+5
+ glLoadIdentity();
+
+//rotasi objek berdasarkan nilai xrot dan yrot
+ glRotatef(xrot, 1.0, 0.0, 0.0);
+ glRotatef(yrot, 0.0, 1.0, 0.0);
+ 
  //alas
     //depan
     glBegin(GL_QUADS); //+8
