@@ -15,7 +15,7 @@ int main (int argc, char** argv){
  glutInit(&argc, argv);
  glutInitDisplayMode( GLUT_DOUBLE | GLUT_DEPTH ); //+2 GLUT_DEPTH : mengalokasikan sumbu z
  glutInitWindowPosition(200, 100); //atur sumbu x dan y
- glutInitWindowSize(1000, 1000); //atur lebar dan tinggi jendela
+ glutInitWindowSize(1000, 800); //atur lebar dan tinggi jendela
  glutCreateWindow("KAMAR TIDUR");
 
 //Mendaftarkan fungsi callback
@@ -52,6 +52,7 @@ void display(){
     //atas
     glBegin(GL_QUADS); //+8
     glColor3ub(210, 180, 140); // Warna Lantai
+    glVertex3f(-15.0, -5.0, -10.0);
     glVertex3f(-15.0, -5.0, 25.0);
     glVertex3f(15.0, -5.0, 25.0);
     glVertex3f(15.0, -5.0, -10.0);
@@ -336,7 +337,7 @@ void display(){
 //jendela 1
     //depan
     glBegin(GL_QUADS); //+8
-    glColor3ub(186, 186, 186);
+    glColor3ub(48, 128, 20); // Warna hijau lumut
     glVertex3f(16.0, 5.0, 8.0);
     glVertex3f(16.0, 1.0, 8.0);
     glVertex3f(16.0, 1.0, 4.0);
@@ -344,7 +345,7 @@ void display(){
     glEnd();
     //belakang
     glBegin(GL_QUADS); //+8
-    glColor3ub(186, 186, 186);
+    glColor3ub(48, 128, 20); // Warna hijau lumut
     glVertex3f(15.5, 5.0, 8.0);
     glVertex3f(15.5, 1.0, 8.0);
     glVertex3f(15.5, 1.0, 4.0);
@@ -352,7 +353,7 @@ void display(){
     glEnd();
     //kanan
     glBegin(GL_QUADS); //+8
-    glColor3ub(204, 204, 204);
+    glColor3ub(48, 128, 20); // Warna hijau lumut
     glVertex3f(15.5, 5.0, 4.0);
     glVertex3f(15.5, 1.0, 4.0);
     glVertex3f(16.0, 1.0, 4.0);
@@ -362,7 +363,7 @@ void display(){
 //jendela 2
     //depan
     glBegin(GL_QUADS); //+8
-    glColor3ub(186, 186, 186);
+    glColor3ub(48, 128, 20); // Warna hijau lumut
     glVertex3f(19.0, 5.0, 4.0);
     glVertex3f(19.0, 1.0, 4.0);
     glVertex3f(16.0, 1.0, 0.0);
@@ -370,7 +371,7 @@ void display(){
     glEnd();
     //belakang
     glBegin(GL_QUADS); //+8
-    glColor3ub(186, 186, 186);
+    glColor3ub(48, 128, 20); // Warna hijau lumut
     glVertex3f(18.5, 5.0, 4.0);
     glVertex3f(18.5, 1.0, 4.0);
     glVertex3f(15.5, 1.0, 0.0);
@@ -378,7 +379,7 @@ void display(){
     glEnd();
     //kanan
     glBegin(GL_QUADS); //+8
-    glColor3ub(176, 176, 176);
+    glColor3ub(48, 128, 20); // Warna hijau lumut
     glVertex3f(18.5, 5.0, 4.0);
     glVertex3f(18.5, 1.0, 4.0);
     glVertex3f(19.0, 1.0, 4.0);
@@ -386,7 +387,7 @@ void display(){
     glEnd();
     //atas
     glBegin(GL_QUADS); //+8
-    glColor3ub(176, 176, 176);
+    glColor3ub(48, 128, 20); // Warna hijau lumut
     glVertex3f(15.5, 5.0, 0.0);
     glVertex3f(18.5, 5.0, 4.0);
     glVertex3f(19.0, 5.0, 4.0);
@@ -397,7 +398,7 @@ void display(){
   //kayu1
     //depan
     glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(-15.0, 2.0, 8.0);
     glVertex3f(-15.0, -5.0, 8.0);
     glVertex3f(-13.5, -5.0, 8.0);
@@ -405,7 +406,7 @@ void display(){
     glEnd();
     //belakang
     glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(-15.0, 2.0, 6.5);
     glVertex3f(-15.0, -5.0, 6.5);
     glVertex3f(-13.5, -5.0, 6.5);
@@ -413,7 +414,7 @@ void display(){
     glEnd();
     //atas
     glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(-15.0, 2.0, 8.0);
     glVertex3f(-15.0, 2.0, 6.5);
     glVertex3f(-13.5, 2.0, 6.5);
@@ -421,7 +422,7 @@ void display(){
     glEnd();
     //kanan
     glBegin(GL_QUADS); //+8
-    glColor3ub(212, 202, 142);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(-13.5, 2.0, 8.0);
     glVertex3f(-13.5, -5.0, 8.0);
     glVertex3f(-13.5, -5.0, 6.5);
@@ -429,7 +430,7 @@ void display(){
     glEnd();
     //penyambung
     glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(-13.5, -1.5, 8.0);
     glVertex3f(-13.5, -3.5, 8.0);
     glVertex3f(1.0, -3.5, 8.0);
@@ -439,7 +440,7 @@ void display(){
 //kayu2
     //depan
    glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(1.0, 2.0, 8.0);
     glVertex3f(1.0, -5.0, 8.0);
     glVertex3f(2.5, -5.0, 8.0);
@@ -447,7 +448,7 @@ void display(){
     glEnd();
     //belakang
     glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(1.0, 2.0, 6.5);
     glVertex3f(1.0, -5.0, 6.5);
     glVertex3f(2.5, -5.0, 6.5);
@@ -455,7 +456,7 @@ void display(){
     glEnd();
     //atas
     glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(1.0, 2.0, 8.0);
     glVertex3f(1.0, 2.0, 6.5);
     glVertex3f(2.5, 2.0, 6.5);
@@ -463,7 +464,7 @@ void display(){
     glEnd();
     //kanan
     glBegin(GL_QUADS); //+8
-    glColor3ub(212, 202, 142);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(2.5, 2.0, 8.0);
     glVertex3f(2.5, -5.0, 8.0);
     glVertex3f(2.5, -5.0, 6.5);
@@ -471,7 +472,7 @@ void display(){
     glEnd();
     //kiri
     glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(1.0, 2.0, 8.0);
     glVertex3f(1.0, -5.0, 8.0);
     glVertex3f(1.0, -5.0, 6.5);
@@ -479,7 +480,7 @@ void display(){
     glEnd();
     //penyambung
     glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(2.5, 1.0, 6.5);
     glVertex3f(2.5, -3.5, 6.5);
     glVertex3f(2.5, -3.5, 2.0);
@@ -488,7 +489,7 @@ void display(){
 //kayu2
     //depan
     glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(1.0, 2.0, 2.0);
     glVertex3f(1.0, -5.0, 2.0);
     glVertex3f(2.5, -5.0, 2.0);
@@ -496,7 +497,7 @@ void display(){
     glEnd();
     //belakang
     glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(1.0, 2.0, 0.5);
     glVertex3f(1.0, -5.0, 0.5);
     glVertex3f(2.5, -5.0, 0.5);
@@ -504,7 +505,7 @@ void display(){
     glEnd();
     //atas
     glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(1.0, 2.0, 2.0);
     glVertex3f(1.0, 2.0, 0.5);
     glVertex3f(2.5, 2.0, 0.5);
@@ -512,7 +513,7 @@ void display(){
     glEnd();
     //kanan
     glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(2.5, 2.0, 2.0);
     glVertex3f(2.5, -5.0, 2.0);
     glVertex3f(2.5, -5.0, 0.5);
@@ -520,7 +521,7 @@ void display(){
     glEnd();
     //kiri
     glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(1.0, 2.0, 2.0);
     glVertex3f(1.0, -5.0, 2.0);
     glVertex3f(1.0, -5.0, 0.5);
@@ -528,7 +529,7 @@ void display(){
     glEnd();
     //penyambung
     glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(-13.5, -1.5, 0.5);
     glVertex3f(-13.5, -3.5, 0.5);
     glVertex3f(1.0, -3.5, 0.5);
@@ -537,7 +538,7 @@ void display(){
 //kayu3
     //depan
     glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(-15.0, 2.0, 2.0);
     glVertex3f(-15.0, -5.0, 2.0);
     glVertex3f(-13.5, -5.0, 2.0);
@@ -545,7 +546,7 @@ void display(){
     glEnd();
     //belakang
     glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(-15.0, 2.0, 0.5);
     glVertex3f(-15.0, -5.0, 0.5);
     glVertex3f(-13.5, -5.0, 0.5);
@@ -553,7 +554,7 @@ void display(){
     glEnd();
     //atas
     glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(-15.0, 2.0, 2.0);
     glVertex3f(-15.0, 2.0, 0.5);
     glVertex3f(-13.5, 2.0, 0.5);
@@ -561,7 +562,7 @@ void display(){
     glEnd();
     //kanan
     glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(-13.5, 2.0, 2.0);
     glVertex3f(-13.5, -5.0, 2.0);
     glVertex3f(-13.5, -5.0, 0.5);
@@ -569,7 +570,7 @@ void display(){
     glEnd();
     //penyambung
     glBegin(GL_QUADS); //+8
-    glColor3ub(255, 240, 150);
+    glColor3ub(255, 102, 204); // Warna pink rose
     glVertex3f(-14.5, 1.0, 6.5);
     glVertex3f(-14.5, -3.5, 6.5);
     glVertex3f(-14.5, -3.5, 2.0);
