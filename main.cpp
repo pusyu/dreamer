@@ -3,9 +3,19 @@
 #include<GL/glu.h>
 #include<GL/glut.h>
 
+GLboolean amb=true, spec=true, dif=true;
+
+bool l_on1 = false;
+bool l_on2 = false;
+bool l_on3 = false;
+bool l_on4 = false;
+
+double spt_cutoff=40;
+
 //deklarasi fungsi
 void display();
 void init();
+void light();
 void reshape(int, int);
 void keyboard(unsigned char, int, int); //+1
 
@@ -17,6 +27,9 @@ int main (int argc, char** argv){
  glutInitWindowPosition(200, 100); //atur sumbu x dan y
  glutInitWindowSize(1000, 800); //atur lebar dan tinggi jendela
  glutCreateWindow("KAMAR TIDUR");
+
+ glEnable(GL_LIGHTING);
+ glEnable(GL_COLOR_MATERIAL);
 
 //Mendaftarkan fungsi callback
 glutDisplayFunc(display); //memanggil fungsi display
@@ -32,6 +45,7 @@ void init(){
 void display(){
  //reset
  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //+5 glLoadIdentity();
+ light();
  //alas lantai
     //depan
     glBegin(GL_QUADS); //+8
@@ -1657,6 +1671,87 @@ glFlush();
 glutSwapBuffers();
 }
 
+
+void light() {
+    // Mengatur nilai properti cahaya
+    GLfloat l_amb[] = {0.2, 0.2, 0.2, 1.0};    // Nilai ambient untuk cahaya
+    GLfloat l_dif[] = {0.961, 0.871, 0.702};   // Nilai diffuse untuk cahaya
+    GLfloat l_spec[] = {0.2, 0.2, 0.2, 1.0};   // Nilai specular untuk cahaya
+    GLfloat l_no[] = {0, 0, 0, 1.0};           // Nilai nol untuk mematikan cahaya
+    GLfloat l_pos1[] = {-20, 20, 20, 1.0};     // Posisi cahaya pertama
+    GLfloat l_pos2[] = {44, 30, -5, 1.0};      // Posisi cahaya kedua
+    GLfloat l_pos3[] = {0, 60, 0, 1.0};        // Posisi cahaya ketiga
+
+    // Mengaktifkan sumber cahaya GL_LIGHT0, GL_LIGHT1, dan GL_LIGHT2
+    glEnable(GL_LIGHT0);
+    glEnable(GL_LIGHT1);
+    glEnable(GL_LIGHT2);
+
+    // Mengatur properti cahaya untuk GL_LIGHT0
+    if (l_on1) {
+        glEnable(GL_LIGHT0);
+        GLfloat light0_pos[] = { -10.0, 10.0, 10.0, 1.0 };
+        GLfloat light0_ambient[] = { 0.2, 0.2, 0.2, 1.0 };
+        GLfloat light0_diffuse[] = { 0.8, 0.8, 0.8, 1.0 };
+        GLfloat light0_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+        glLightfv(GL_LIGHT0, GL_POSITION, light0_pos);
+        glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient);
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
+        glLightfv(GL_LIGHT0, GL_SPECULAR, light0_specular);
+    } else {
+        glDisable(GL_LIGHT0);
+    }
+
+    if (l_on2) {
+        glEnable(GL_LIGHT1);
+        GLfloat light1_pos[] = { 10.0, 10.0, 10.0, 1.0 };
+        GLfloat light1_ambient[] = { 0.2, 0.2, 0.2, 1.0 };
+        GLfloat light1_diffuse[] = { 0.8, 0.8, 0.8, 1.0 };
+        GLfloat light1_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+        glLightfv(GL_LIGHT1, GL_POSITION, light1_pos);
+        glLightfv(GL_LIGHT1, GL_AMBIENT, light1_ambient);
+        glLightfv(GL_LIGHT1, GL_DIFFUSE, light1_diffuse);
+        glLightfv(GL_LIGHT1, GL_SPECULAR, light1_specular);
+    } else {
+        glDisable(GL_LIGHT1);
+    }
+
+    if (l_on3) {
+        glEnable(GL_LIGHT2);
+        GLfloat light2_pos[] = { 0.0, 10.0, -10.0, 1.0 };
+        GLfloat light2_ambient[] = { 0.2, 0.2, 0.2, 1.0 };
+        GLfloat light2_diffuse[] = { 0.8, 0.8, 0.8, 1.0 };
+        GLfloat light2_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+        glLightfv(GL_LIGHT2, GL_POSITION, light2_pos);
+        glLightfv(GL_LIGHT2, GL_AMBIENT, light2_ambient);
+        glLightfv(GL_LIGHT2, GL_DIFFUSE, light2_diffuse);
+        glLightfv(GL_LIGHT2, GL_SPECULAR, light2_specular);
+    } else {
+        glDisable(GL_LIGHT2);
+    }
+
+    // Menetapkan posisi cahaya ketiga
+    glLightfv(GL_LIGHT2, GL_POSITION, l_pos3);
+
+    // Mengatur arah sorotan cahaya untuk GL_LIGHT2
+    GLfloat spot_direction[] = { 0.0, -1.0, 0.0 }; // Arah sorotan ke bawah
+    glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, spot_direction);
+
+    // Mengatur sudut potong (cutoff angle) untuk sorotan cahaya GL_LIGHT2
+    GLfloat spt_ct[] = {spt_cutoff};
+    glLightfv(GL_LIGHT2, GL_SPOT_CUTOFF, spt_ct);
+
+    // Case 4: Mengembalikan pencahayaan normal
+    if (l_on4) {
+        glDisable(GL_LIGHT0);
+        glDisable(GL_LIGHT1);
+        glDisable(GL_LIGHT2);
+        glEnable(GL_LIGHTING); // Mengaktifkan pencahayaan global
+        GLfloat global_ambient[] = {1.0, 1.0, 1.0, 1.0}; // Pencahayaan ambient putih
+        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
+    }
+}
+
 //fungsi untuk setting viewport
 void reshape(int w, int h){
  glViewport(0,0, (GLsizei)w, (GLsizei)h); //membuat viewport sesuai ukuran jendela
@@ -1677,6 +1772,23 @@ void keyboard(unsigned char key, int x, int y)
  coordinates when the key was struck */
 switch (key)
 {
+ case '1':
+        l_on1=!l_on1;
+        break;
+    case '2':
+        l_on2=!l_on2;
+        break;
+    case '3':
+        l_on3=!l_on3;
+        break;
+    case '4':
+         l_on4 = !l_on4;
+    if (l_on4) {
+        l_on1 = false;
+        l_on2 = false;
+        l_on3 = false;
+    }
+    break;
 case 'd':
  case 'D':
  glTranslated(-1.0, 0.0, 0.0);//geser kiri
