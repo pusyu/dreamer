@@ -1,15 +1,21 @@
-#define GL_SILENCE_DEPRECATION
-#ifdef _APPLE_CC_
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
-#include <stdlib.h>
-#include <stdio.h>
-#include <iostream>
+//header
+#include<GL/gl.h>
+#include<GL/glu.h>
+#include<GL/glut.h>
+#include<GL/glext.h>
 #define STB_IMAGE_IMPLEMENTATION
-#include <GL/glut.h>
 #include "stb_image.h"
+#include<iostream>
+
+// Variabel global untuk menyimpan ID tekstur
+GLuint textureID_floor;
+GLuint textureID_wall;
+
+// Deklarasi struktur untuk menyimpan ID tekstur
+struct TextureIDs {
+    GLuint floor;
+    GLuint wall;
+};
 
 //Variabel untuk lampu
 GLboolean amb=true, spec=true, dif=true;
@@ -19,62 +25,13 @@ bool l_on3 = false;
 bool l_on4 = false;
 double spt_cutoff=40;
 
-//variabel global untuk menimpan ID tekstur
-GLuint textureLantai;
-
-//variabel global untuk menimpan ID tekstur
-GLuint textureBata; 
-
-//variabel global untuk menimpan ID tekstur
-GLuint textureTembok;
-
-//variabel global untuk menimpan ID tekstur
-GLuint textureBed;
-
-//variabel global untuk menimpan ID tekstur
-GLuint textureKasur;
-
-//variabel global untuk menimpan ID tekstur
-GLuint textureLaci;
-
-//variabel global untuk menimpan ID tekstur
-GLuint textureLemari;
-
-//variabel global untuk menimpan ID tekstur
-GLuint texturePintu1;
-
-//variabel global untuk menimpan ID tekstur
-GLuint texturePintu2;
-
-GLuint loadTexture(const char *filename) {
-    GLuint texture;
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load(filename, &width, &height, &nrChannels, 0);
-    if (data) {
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-        // Manually generate mipmaps
-        gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
-        stbi_image_free(data);
-    } else {
-        std::cerr << "Failed to load texture: " << filename << std::endl;
-        stbi_image_free(data);
-    }
-    return texture;
-}
-
 //deklarasi fungsi
 void display();
 void init();
 void light();
 void reshape(int, int);
 void keyboard(unsigned char, int, int); //+1
-GLuint loadTexture(const char* filename);
-
+TextureIDs loadTextures();
 
 //fungsi utama
 int main (int argc, char** argv){
@@ -100,28 +57,23 @@ glutMainLoop(); //looping program utama
 void init(){
  glEnable(GL_DEPTH_TEST); //+4
  glClearColor(0.0, 0.0, 0.0, 1.0);
- glEnable(GL_TEXTURE_2D);
 
- textureLantai = loadTexture("assets/lantai.jpg");
- textureBata = loadTexture("assets/bata.jpg");
- textureTembok = loadTexture("assets/tembok.jpg");
- textureBed = loadTexture("assets/bed.jpg");
- textureKasur = loadTexture("assets/selimutt.jpg");
- textureLaci = loadTexture("assets/kayu.jpg");
- textureLemari = loadTexture("assets/kayu.jpg");
- texturePintu1 = loadTexture("assets/pintu1.jpg");
- texturePintu2 = loadTexture("assets/pintu2.jpg");
+ // Memuat tekstur
+    TextureIDs textures = loadTextures();
+    textureID_floor = textures.floor;
+    textureID_wall = textures.wall;
 }
 
 void display(){
  //reset
- glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //+5
+ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //+5 glLoadIdentity();
+ glLoadIdentity();
  light();
 
 // Aktifkan tekstur
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textureLantai);
- //alas lantai
+    glBindTexture(GL_TEXTURE_2D, textureID_floor);
+    //alas lantai
     //depan
     glBegin(GL_QUADS); //+8
     glColor3ub(210, 180, 140); // Warna Lantai
@@ -167,7 +119,7 @@ void display(){
 
 //tembok
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textureBata);
+    glBindTexture(GL_TEXTURE_2D, textureID_wall);
     //depan
     glBegin(GL_QUADS); //+8
     glColor3ub(230, 230, 250); // Warna ungu muda
@@ -208,240 +160,226 @@ void display(){
     glTexCoord2f (1.0, 1.0); glVertex3f(-15.0, -6.0, -10.0);
     glTexCoord2f (1.0, 0.0); glVertex3f(-15.0, 15.0, -10.0);
     glEnd();
+
     glDisable(GL_TEXTURE_2D);
 
 //tembok kiri
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textureTembok);
     //depan
     glBegin(GL_QUADS); //+8
     glColor3ub(221, 160, 221); // Warna ungu
-    glTexCoord2f (0.0, 0.0); glVertex3f(-15.0, 15.0, -11.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-15.0, -6.0, -11.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-15.0, -6.0, 25.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-15.0, 15.0, 25.0);
+    glVertex3f(-15.0, 15.0, -11.0);
+    glVertex3f(-15.0, -6.0, -11.0);
+    glVertex3f(-15.0, -6.0, 25.0);
+    glVertex3f(-15.0, 15.0, 25.0);
     glEnd();
     //belakang
     glBegin(GL_QUADS); //+8
     glColor3ub(221, 160, 221); // Warna ungu
-    glTexCoord2f (0.0, 0.0); glVertex3f(-16.0, 15.0, -11.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-16.0, -6.0, -11.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-16.0, -6.0, 25.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-16.0, 15.0, 25.0);
+    glVertex3f(-16.0, 15.0, -11.0);
+    glVertex3f(-16.0, -6.0, -11.0);
+    glVertex3f(-16.0, -6.0, 25.0);
+    glVertex3f(-16.0, 15.0, 25.0);
     glEnd();
     //atas
     glBegin(GL_QUADS); //+8
     glColor3ub(221, 160, 221); // Warna ungu
-    glTexCoord2f (0.0, 0.0); glVertex3f(-16.0, 15.0, -11.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-15.0, 15.0, -11.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-15.0, 15.0, 25.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-16.0, 15.0, 25.0);
+    glVertex3f(-16.0, 15.0, -11.0);
+    glVertex3f(-15.0, 15.0, -11.0);
+    glVertex3f(-15.0, 15.0, 25.0);
+    glVertex3f(-16.0, 15.0, 25.0);
     glEnd();
     //kanan
     glBegin(GL_QUADS); //+8
     glColor3ub(221, 160, 221); // Warna ungu
-    glTexCoord2f (0.0, 0.0); glVertex3f(-15.0, 15.0, -11.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-15.0, -6.0, -11.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-16.0, -6.0, -11.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-16.0, 15.0, -11.0);
+    glVertex3f(-15.0, 15.0, -11.0);
+    glVertex3f(-15.0, -6.0, -11.0);
+    glVertex3f(-16.0, -6.0, -11.0);
+    glVertex3f(-16.0, 15.0, -11.0);
     glEnd();
     //kiri
     glBegin(GL_QUADS); //+8
     glColor3ub(221, 160, 221); // Warna ungu
-    glTexCoord2f (0.0, 0.0); glVertex3f(-15.0, 15.0, 25.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-15.0, -6.0, 25.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-16.0, -6.0, 25.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-16.0, 15.0, 25.0);
+    glVertex3f(-15.0, 15.0, 25.0);
+    glVertex3f(-15.0, -6.0, 25.0);
+    glVertex3f(-16.0, -6.0, 25.0);
+    glVertex3f(-16.0, 15.0, 25.0);
     glEnd();
-    glDisable(GL_TEXTURE_2D);
 
 //tembok kanan
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textureTembok);
     //depan
     glBegin(GL_QUADS); //+8
     glColor3ub(221, 160, 221); // Warna ungu
-    glTexCoord2f (0.0, 0.0); glVertex3f(15.0, 15.0, -11.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(15.0, -6.0, -11.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(15.0, -6.0, 0.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(15.0, 15.0, 0.0);
+    glVertex3f(15.0, 15.0, -11.0);
+    glVertex3f(15.0, -6.0, -11.0);
+    glVertex3f(15.0, -6.0, 0.0);
+    glVertex3f(15.0, 15.0, 0.0);
     glEnd();
     //belakang
     glBegin(GL_QUADS); //+8
     glColor3ub(221, 160, 221); // Warna ungu
-    glTexCoord2f (0.0, 0.0); glVertex3f(16.0, 15.0, -11.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(16.0, -6.0, -11.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(16.0, -6.0, 0.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(16.0, 15.0, 0.0);
+    glVertex3f(16.0, 15.0, -11.0);
+    glVertex3f(16.0, -6.0, -11.0);
+    glVertex3f(16.0, -6.0, 0.0);
+    glVertex3f(16.0, 15.0, 0.0);
     glEnd();
     //atas
     glBegin(GL_QUADS); //+8
     glColor3ub(221, 160, 221); // Warna ungu
-    glTexCoord2f (0.0, 0.0); glVertex3f(16.0, 15.0, -11.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(15.0, 15.0, -11.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(15.0, 15.0, 0.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(16.0, 15.0, 0.0);
+    glVertex3f(16.0, 15.0, -11.0);
+    glVertex3f(15.0, 15.0, -11.0);
+    glVertex3f(15.0, 15.0, 0.0);
+    glVertex3f(16.0, 15.0, 0.0);
     glEnd();
     //kanan
     glBegin(GL_QUADS); //+8
     glColor3ub(221, 160, 221); // Warna ungu
-    glTexCoord2f (0.0, 0.0); glVertex3f(15.0, 15.0, -11.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(15.0, -6.0, -11.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(16.0, -6.0, -11.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(16.0, 15.0, -11.0);
+    glVertex3f(15.0, 15.0, -11.0);
+    glVertex3f(15.0, -6.0, -11.0);
+    glVertex3f(16.0, -6.0, -11.0);
+    glVertex3f(16.0, 15.0, -11.0);
     glEnd();
     //kiri
     glBegin(GL_QUADS); //+8
     glColor3ub(221, 160, 221); // Warna ungu
-    glTexCoord2f (0.0, 0.0); glVertex3f(15.0, 15.0, 0.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(15.0, -6.0, 0.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(16.0, -6.0, 0.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(16.0, 15.0, 0.0);
+    glVertex3f(15.0, 15.0, 0.0);
+    glVertex3f(15.0, -6.0, 0.0);
+    glVertex3f(16.0, -6.0, 0.0);
+    glVertex3f(16.0, 15.0, 0.0);
     glEnd();
-    glDisable(GL_TEXTURE_2D);
 
     //kanan (kiri)
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textureTembok);
     //depan
     glBegin(GL_QUADS); //+8
     glColor3ub(221, 160, 221); // Warna ungu
-    glTexCoord2f (0.0, 0.0); glVertex3f(15.0, 15.0, 8.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(15.0, -6.0, 8.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(15.0, -6.0, 25.0);
-    glTexCoord2f (1.0, 0.0); glTexCoord2f (0.0, 0.0);glVertex3f(15.0, 15.0, 25.0);
+    glVertex3f(15.0, 15.0, 8.0);
+    glVertex3f(15.0, -6.0, 8.0);
+    glVertex3f(15.0, -6.0, 25.0);
+    glVertex3f(15.0, 15.0, 25.0);
     glEnd();
     //belakang
     glBegin(GL_QUADS); //+8
     glColor3ub(221, 160, 221); // Warna ungu
-    glTexCoord2f (0.0, 0.0); glVertex3f(16.0, 15.0, 8.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(16.0, -6.0, 8.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(16.0, -6.0, 25.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(16.0, 15.0, 25.0);
+    glVertex3f(16.0, 15.0, 8.0);
+    glVertex3f(16.0, -6.0, 8.0);
+    glVertex3f(16.0, -6.0, 25.0);
+    glVertex3f(16.0, 15.0, 25.0);
     glEnd();
     //atas
     glBegin(GL_QUADS); //+8
     glColor3ub(221, 160, 221); // Warna ungu
-    glTexCoord2f (0.0, 0.0); glVertex3f(16.0, 15.0, 8.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(15.0, 15.0, 8.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(15.0, 15.0, 25.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(16.0, 15.0, 25.0);
+    glVertex3f(16.0, 15.0, 8.0);
+    glVertex3f(15.0, 15.0, 8.0);
+    glVertex3f(15.0, 15.0, 25.0);
+    glVertex3f(16.0, 15.0, 25.0);
     glEnd();
     //kanan
     glBegin(GL_QUADS); //+8
     glColor3ub(221, 160, 221); // Warna ungu
-    glTexCoord2f (0.0, 0.0); glVertex3f(15.0, 15.0, 8.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(15.0, -6.0, 8.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(16.0, -6.0, 8.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(16.0, 15.0, 8.0);
+    glVertex3f(15.0, 15.0, 8.0);
+    glVertex3f(15.0, -6.0, 8.0);
+    glVertex3f(16.0, -6.0, 8.0);
+    glVertex3f(16.0, 15.0, 8.0);
     glEnd();
     //kiri
     glBegin(GL_QUADS); //+8
     glColor3ub(221, 160, 221); // Warna ungu
-    glTexCoord2f (0.0, 0.0); glVertex3f(15.0, 15.0, 25.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(15.0, -6.0, 25.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(16.0, -6.0, 25.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(16.0, 15.0, 25.0);
+    glVertex3f(15.0, 15.0, 25.0);
+    glVertex3f(15.0, -6.0, 25.0);
+    glVertex3f(16.0, -6.0, 25.0);
+    glVertex3f(16.0, 15.0, 25.0);
     glEnd();
-    glDisable(GL_TEXTURE_2D);
 
     //kanan (bawah)
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textureBata);
     //depan
     glBegin(GL_QUADS); //+8
     glColor3ub(230, 230, 250); // Warna ungu muda
-    glTexCoord2f (0.0, 0.0); glVertex3f(15.0, 1.0, 0.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(15.0, -6.0, 0.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(15.0, -6.0, 8.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(15.0, 1.0, 8.0);
+    glVertex3f(15.0, 1.0, 0.0);
+    glVertex3f(15.0, -6.0, 0.0);
+    glVertex3f(15.0, -6.0, 8.0);
+    glVertex3f(15.0, 1.0, 8.0);
     glEnd();
     //belakang
     glBegin(GL_QUADS); //+8
     glColor3ub(230, 230, 250); // Warna ungu muda
-    glTexCoord2f (0.0, 0.0); glVertex3f(16.0, 1.0, 0.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(16.0, -6.0, 0.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(16.0, -6.0, 8.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(16.0, 1.0, 8.0);
+    glVertex3f(16.0, 1.0, 0.0);
+    glVertex3f(16.0, -6.0, 0.0);
+    glVertex3f(16.0, -6.0, 8.0);
+    glVertex3f(16.0, 1.0, 8.0);
     glEnd();
     //atas
     glBegin(GL_QUADS); //+8
     glColor3ub(230, 230, 250); // Warna ungu muda
-    glTexCoord2f (0.0, 0.0); glVertex3f(16.0, 1.0, 0.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(15.0, 1.0, 0.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(15.0, 1.0, 8.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(16.0, 1.0, 8.0);
+    glVertex3f(16.0, 1.0, 0.0);
+    glVertex3f(15.0, 1.0, 0.0);
+    glVertex3f(15.0, 1.0, 8.0);
+    glVertex3f(16.0, 1.0, 8.0);
     glEnd();
     //kanan
     glBegin(GL_QUADS); //+8
     glColor3ub(230, 230, 250); // Warna ungu muda
-    glTexCoord2f (0.0, 0.0); glVertex3f(15.0, 1.0, 8.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(15.0, -6.0, 8.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(16.0, -6.0, 8.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(16.0, 1.0, 8.0);
+    glVertex3f(15.0, 1.0, 8.0);
+    glVertex3f(15.0, -6.0, 8.0);
+    glVertex3f(16.0, -6.0, 8.0);
+    glVertex3f(16.0, 1.0, 8.0);
     glEnd();
     //kiri
     glBegin(GL_QUADS); //+8
     glColor3ub(230, 230, 250); // Warna ungu muda
-    glTexCoord2f (0.0, 0.0); glVertex3f(15.0, 1.0, 0.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(15.0, -6.0, 0.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(16.0, -6.0, 0.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(16.0, 1.0, 0.0);
+    glVertex3f(15.0, 1.0, 0.0);
+    glVertex3f(15.0, -6.0, 0.0);
+    glVertex3f(16.0, -6.0, 0.0);
+    glVertex3f(16.0, 1.0, 0.0);
     glEnd();
-    glDisable(GL_TEXTURE_2D);
 
     //kanan (atas)
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textureBata);
     //depan
     glBegin(GL_QUADS); //+8
     glColor3ub(230, 230, 250); // Warna ungu muda
-    glTexCoord2f (0.0, 0.0); glVertex3f(15.0, 15.0, 0.0);
-    glTexCoord2f (0.0, 0.0); glVertex3f(15.0, 5.0, 0.0);
-    glTexCoord2f (0.0, 0.0); glVertex3f(15.0, 5.0, 8.0);
-    glTexCoord2f (0.0, 0.0); glVertex3f(15.0, 15.0, 8.0);
+    glVertex3f(15.0, 15.0, 0.0);
+    glVertex3f(15.0, 5.0, 0.0);
+    glVertex3f(15.0, 5.0, 8.0);
+    glVertex3f(15.0, 15.0, 8.0);
     glEnd();
     //belakang
     glBegin(GL_QUADS); //+8
     glColor3ub(230, 230, 250); // Warna ungu muda
-    glTexCoord2f (0.0, 0.0); glVertex3f(16.0, 15.0, 0.0);
-    glTexCoord2f (0.0, 0.0); glVertex3f(16.0, 5.0, 0.0);
-    glTexCoord2f (0.0, 0.0); glVertex3f(16.0, 5.0, 8.0);
-    glTexCoord2f (0.0, 0.0); glVertex3f(16.0, 15.0, 8.0);
+    glVertex3f(16.0, 15.0, 0.0);
+    glVertex3f(16.0, 5.0, 0.0);
+    glVertex3f(16.0, 5.0, 8.0);
+    glVertex3f(16.0, 15.0, 8.0);
     glEnd();
     //atas
     glBegin(GL_QUADS); //+8
     glColor3ub(230, 230, 250); // Warna ungu muda
-    glTexCoord2f (0.0, 0.0); glVertex3f(16.0, 15.0, 0.0);
-    glTexCoord2f (0.0, 0.0); glVertex3f(15.0, 15.0, 0.0);
-    glTexCoord2f (0.0, 0.0); glVertex3f(15.0, 15.0, 8.0);
-    glTexCoord2f (0.0, 0.0); glVertex3f(16.0, 15.0, 8.0);
+    glVertex3f(16.0, 15.0, 0.0);
+    glVertex3f(15.0, 15.0, 0.0);
+    glVertex3f(15.0, 15.0, 8.0);
+    glVertex3f(16.0, 15.0, 8.0);
     glEnd();
     //bawah
     glBegin(GL_QUADS); //+8
     glColor3ub(230, 230, 250); // Warna ungu muda
-    glTexCoord2f (0.0, 0.0); glVertex3f(16.0, 5.0, 0.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(15.0, 5.0, 0.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(15.0, 5.0, 8.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(16.0, 5.0, 8.0);
+    glVertex3f(16.0, 5.0, 0.0);
+    glVertex3f(15.0, 5.0, 0.0);
+    glVertex3f(15.0, 5.0, 8.0);
+    glVertex3f(16.0, 5.0, 8.0);
     glEnd();
     //kanan
     glBegin(GL_QUADS); //+8
     glColor3ub(230, 230, 250); // Warna ungu muda
-    glTexCoord2f (0.0, 0.0); glVertex3f(15.0, 15.0, 8.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(15.0, 5.0, 8.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(16.0, 5.0, 8.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(16.0, 15.0, 8.0);
+    glVertex3f(15.0, 15.0, 8.0);
+    glVertex3f(15.0, 5.0, 8.0);
+    glVertex3f(16.0, 5.0, 8.0);
+    glVertex3f(16.0, 15.0, 8.0);
     glEnd();
     //kiri
     glBegin(GL_QUADS); //+8
     glColor3ub(230, 230, 250); // Warna ungu muda
-    glTexCoord2f (0.0, 0.0); glVertex3f(15.0, 15.0, -1.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(15.0, 5.0, -1.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(16.0, 5.0, -1.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(16.0, 15.0, -1.0);
+    glVertex3f(15.0, 15.0, -1.0);
+    glVertex3f(15.0, 5.0, -1.0);
+    glVertex3f(16.0, 5.0, -1.0);
+    glVertex3f(16.0, 15.0, -1.0);
     glEnd();
-    glDisable(GL_TEXTURE_2D);
 
 //jendela 1
     //depan
@@ -504,233 +442,214 @@ void display(){
     glEnd();
 
 //tempat tidur
-glEnable(GL_TEXTURE_2D);
-glBindTexture(GL_TEXTURE_2D, textureBed);
   //kayu1
     //depan
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(-15.0, 2.0, 8.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-15.0, -5.0, 8.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-13.5, -5.0, 8.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-13.5, 2.0, 8.0);
+    glVertex3f(-15.0, 2.0, 8.0);
+    glVertex3f(-15.0, -5.0, 8.0);
+    glVertex3f(-13.5, -5.0, 8.0);
+    glVertex3f(-13.5, 2.0, 8.0);
     glEnd();
     //belakang
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(-15.0, 2.0, 6.5);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-15.0, -5.0, 6.5);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-13.5, -5.0, 6.5);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-13.5, 2.0, 6.5);
+    glVertex3f(-15.0, 2.0, 6.5);
+    glVertex3f(-15.0, -5.0, 6.5);
+    glVertex3f(-13.5, -5.0, 6.5);
+    glVertex3f(-13.5, 2.0, 6.5);
     glEnd();
     //atas
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(-15.0, 2.0, 8.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-15.0, 2.0, 6.5);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-13.5, 2.0, 6.5);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-13.5, 2.0, 8.0);
+    glVertex3f(-15.0, 2.0, 8.0);
+    glVertex3f(-15.0, 2.0, 6.5);
+    glVertex3f(-13.5, 2.0, 6.5);
+    glVertex3f(-13.5, 2.0, 8.0);
     glEnd();
     //kanan
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(-13.5, 2.0, 8.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-13.5, -5.0, 8.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-13.5, -5.0, 6.5);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-13.5, 2.0, 6.5);
+    glVertex3f(-13.5, 2.0, 8.0);
+    glVertex3f(-13.5, -5.0, 8.0);
+    glVertex3f(-13.5, -5.0, 6.5);
+    glVertex3f(-13.5, 2.0, 6.5);
     glEnd();
     //penyambung
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(-13.5, -1.5, 8.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-13.5, -3.5, 8.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(1.0, -3.5, 8.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(1.0, -1.5, 8.0);
+    glVertex3f(-13.5, -1.5, 8.0);
+    glVertex3f(-13.5, -3.5, 8.0);
+    glVertex3f(1.0, -3.5, 8.0);
+    glVertex3f(1.0, -1.5, 8.0);
     glEnd();
 
-    glDisable(GL_TEXTURE_2D);
-
 //kayu2
-glEnable(GL_TEXTURE_2D);
-glBindTexture(GL_TEXTURE_2D, textureBed);
     //depan
    glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(1.0, 2.0, 8.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(1.0, -5.0, 8.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(2.5, -5.0, 8.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(2.5, 2.0, 8.0);
+    glVertex3f(1.0, 2.0, 8.0);
+    glVertex3f(1.0, -5.0, 8.0);
+    glVertex3f(2.5, -5.0, 8.0);
+    glVertex3f(2.5, 2.0, 8.0);
     glEnd();
     //belakang
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(1.0, 2.0, 6.5);
-    glTexCoord2f (0.0, 1.0); glVertex3f(1.0, -5.0, 6.5);
-    glTexCoord2f (1.0, 1.0); glVertex3f(2.5, -5.0, 6.5);
-    glTexCoord2f (1.0, 0.0); glVertex3f(2.5, 2.0, 6.5);
+    glVertex3f(1.0, 2.0, 6.5);
+    glVertex3f(1.0, -5.0, 6.5);
+    glVertex3f(2.5, -5.0, 6.5);
+    glVertex3f(2.5, 2.0, 6.5);
     glEnd();
     //atas
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(1.0, 2.0, 8.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(1.0, 2.0, 6.5);
-    glTexCoord2f (1.0, 1.0); glVertex3f(2.5, 2.0, 6.5);
-    glTexCoord2f (1.0, 0.0); glVertex3f(2.5, 2.0, 8.0);
+    glVertex3f(1.0, 2.0, 8.0);
+    glVertex3f(1.0, 2.0, 6.5);
+    glVertex3f(2.5, 2.0, 6.5);
+    glVertex3f(2.5, 2.0, 8.0);
     glEnd();
     //kanan
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(2.5, 2.0, 8.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(2.5, -5.0, 8.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(2.5, -5.0, 6.5);
-    glTexCoord2f (1.0, 0.0);glVertex3f(2.5, 2.0, 6.5);
+    glVertex3f(2.5, 2.0, 8.0);
+    glVertex3f(2.5, -5.0, 8.0);
+    glVertex3f(2.5, -5.0, 6.5);
+    glVertex3f(2.5, 2.0, 6.5);
     glEnd();
     //kiri
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(1.0, 2.0, 8.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(1.0, -5.0, 8.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(1.0, -5.0, 6.5);
-    glTexCoord2f (1.0, 0.0); glVertex3f(1.0, 2.0, 6.5);
+    glVertex3f(1.0, 2.0, 8.0);
+    glVertex3f(1.0, -5.0, 8.0);
+    glVertex3f(1.0, -5.0, 6.5);
+    glVertex3f(1.0, 2.0, 6.5);
     glEnd();
     //penyambung
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(2.5, 1.0, 6.5);
-    glTexCoord2f (0.0, 1.0); glVertex3f(2.5, -3.5, 6.5);
-    glTexCoord2f (1.0, 1.0); glVertex3f(2.5, -3.5, 2.0);
-    glTexCoord2f (1.0, 0.0);glVertex3f(2.5, 1.0, 2.0);
+    glVertex3f(2.5, 1.0, 6.5);
+    glVertex3f(2.5, -3.5, 6.5);
+    glVertex3f(2.5, -3.5, 2.0);
+    glVertex3f(2.5, 1.0, 2.0);
     glEnd();
-
-    glDisable(GL_TEXTURE_2D); 
-
 //kayu2
-glEnable(GL_TEXTURE_2D);
-glBindTexture(GL_TEXTURE_2D, textureBed);
     //depan
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(1.0, 2.0, 2.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(1.0, -5.0, 2.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(2.5, -5.0, 2.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(2.5, 2.0, 2.0);
+    glVertex3f(1.0, 2.0, 2.0);
+    glVertex3f(1.0, -5.0, 2.0);
+    glVertex3f(2.5, -5.0, 2.0);
+    glVertex3f(2.5, 2.0, 2.0);
     glEnd();
     //belakang
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(1.0, 2.0, 0.5);
-    glTexCoord2f (0.0, 1.0); glVertex3f(1.0, -5.0, 0.5);
-    glTexCoord2f (1.0, 1.0); glVertex3f(2.5, -5.0, 0.5);
-    glTexCoord2f (1.0, 0.0); glVertex3f(2.5, 2.0, 0.5);
+    glVertex3f(1.0, 2.0, 0.5);
+    glVertex3f(1.0, -5.0, 0.5);
+    glVertex3f(2.5, -5.0, 0.5);
+    glVertex3f(2.5, 2.0, 0.5);
     glEnd();
     //atas
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(1.0, 2.0, 2.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(1.0, 2.0, 0.5);
-    glTexCoord2f (1.0, 1.0); glVertex3f(2.5, 2.0, 0.5);
-    glTexCoord2f (1.0, 0.0); glVertex3f(2.5, 2.0, 2.0);
+    glVertex3f(1.0, 2.0, 2.0);
+    glVertex3f(1.0, 2.0, 0.5);
+    glVertex3f(2.5, 2.0, 0.5);
+    glVertex3f(2.5, 2.0, 2.0);
     glEnd();
     //kanan
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(2.5, 2.0, 2.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(2.5, -5.0, 2.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(2.5, -5.0, 0.5);
-    glTexCoord2f (1.0, 0.0); glVertex3f(2.5, 2.0, 0.5);
+    glVertex3f(2.5, 2.0, 2.0);
+    glVertex3f(2.5, -5.0, 2.0);
+    glVertex3f(2.5, -5.0, 0.5);
+    glVertex3f(2.5, 2.0, 0.5);
     glEnd();
     //kiri
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(1.0, 2.0, 2.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(1.0, -5.0, 2.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(1.0, -5.0, 0.5);
-    glTexCoord2f (1.0, 0.0); glVertex3f(1.0, 2.0, 0.5);
+    glVertex3f(1.0, 2.0, 2.0);
+    glVertex3f(1.0, -5.0, 2.0);
+    glVertex3f(1.0, -5.0, 0.5);
+    glVertex3f(1.0, 2.0, 0.5);
     glEnd();
     //penyambung
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(-13.5, -1.5, 0.5);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-13.5, -3.5, 0.5);
-    glTexCoord2f (1.0, 1.0); glVertex3f(1.0, -3.5, 0.5);
-    glTexCoord2f (1.0, 0.0); glVertex3f(1.0, -1.5, 0.5);
+    glVertex3f(-13.5, -1.5, 0.5);
+    glVertex3f(-13.5, -3.5, 0.5);
+    glVertex3f(1.0, -3.5, 0.5);
+    glVertex3f(1.0, -1.5, 0.5);
     glEnd();
-    glDisable(GL_TEXTURE_2D); 
-
 //kayu3
-glEnable(GL_TEXTURE_2D);
-glBindTexture(GL_TEXTURE_2D, textureBed);
     //depan
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(-15.0, 2.0, 2.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-15.0, -5.0, 2.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-13.5, -5.0, 2.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-13.5, 2.0, 2.0);
+    glVertex3f(-15.0, 2.0, 2.0);
+    glVertex3f(-15.0, -5.0, 2.0);
+    glVertex3f(-13.5, -5.0, 2.0);
+    glVertex3f(-13.5, 2.0, 2.0);
     glEnd();
     //belakang
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(-15.0, 2.0, 0.5);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-15.0, -5.0, 0.5);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-13.5, -5.0, 0.5);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-13.5, 2.0, 0.5);
+    glVertex3f(-15.0, 2.0, 0.5);
+    glVertex3f(-15.0, -5.0, 0.5);
+    glVertex3f(-13.5, -5.0, 0.5);
+    glVertex3f(-13.5, 2.0, 0.5);
     glEnd();
     //atas
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(-15.0, 2.0, 2.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-15.0, 2.0, 0.5);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-13.5, 2.0, 0.5);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-13.5, 2.0, 2.0);
+    glVertex3f(-15.0, 2.0, 2.0);
+    glVertex3f(-15.0, 2.0, 0.5);
+    glVertex3f(-13.5, 2.0, 0.5);
+    glVertex3f(-13.5, 2.0, 2.0);
     glEnd();
     //kanan
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(-13.5, 2.0, 2.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-13.5, -5.0, 2.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-13.5, -5.0, 0.5);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-13.5, 2.0, 0.5);
+    glVertex3f(-13.5, 2.0, 2.0);
+    glVertex3f(-13.5, -5.0, 2.0);
+    glVertex3f(-13.5, -5.0, 0.5);
+    glVertex3f(-13.5, 2.0, 0.5);
     glEnd();
     //penyambung
     glBegin(GL_QUADS); //+8
     glColor3ub(255, 102, 204); // Warna pink rose
-    glTexCoord2f (0.0, 0.0); glVertex3f(-14.5, 1.0, 6.5);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-14.5, -3.5, 6.5);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-14.5, -3.5, 2.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-14.5, 1.0, 2.0);
+    glVertex3f(-14.5, 1.0, 6.5);
+    glVertex3f(-14.5, -3.5, 6.5);
+    glVertex3f(-14.5, -3.5, 2.0);
+    glVertex3f(-14.5, 1.0, 2.0);
     glEnd();
-    glDisable(GL_TEXTURE_2D); 
 
 //kasur
     //belakang
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textureKasur);
     //selimut
     glBegin(GL_QUADS);
     glColor3ub(255, 192, 203); // Warna pink muda
-    glTexCoord2f (0.0, 0.0); glVertex3f(-10.0, 0.0, 0.5);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-10.0, -1.5, 0.5);
-    glTexCoord2f (1.0, 1.0); glVertex3f(1.0, -1.5, 0.5);
-    glTexCoord2f (1.0, 0.0); glVertex3f(1.0, 0.0, 0.5);
+    glVertex3f(-10.0, 0.0, 0.5);
+    glVertex3f(-10.0, -1.5, 0.5);
+    glVertex3f(1.0, -1.5, 0.5);
+    glVertex3f(1.0, 0.0, 0.5);
     glEnd();
     //depan
     glBegin(GL_QUADS);
     glColor3ub(255, 192, 203); // Warna pink muda
-    glTexCoord2f (0.0, 0.0); glVertex3f(-10.0, 0.0, 8.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-10.0, -1.5, 8.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(1.0, -1.5, 8.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(1.0, 0.0, 8.0);
+    glVertex3f(-10.0, 0.0, 8.0);
+    glVertex3f(-10.0, -1.5, 8.0);
+    glVertex3f(1.0, -1.5, 8.0);
+    glVertex3f(1.0, 0.0, 8.0);
     glEnd();
     //atas
     glBegin(GL_QUADS);
     glColor3ub(255, 192, 203); // Warna pink muda
-    glTexCoord2f (0.0, 0.0); glVertex3f(-10.0, 0.0, 0.5);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-10.0, 0.0, 8.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(1.0, 0.0, 8.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(1.0, 0.0, 0.5);
+    glVertex3f(-10.0, 0.0, 0.5);
+    glVertex3f(-10.0, 0.0, 8.0);
+    glVertex3f(1.0, 0.0, 8.0);
+    glVertex3f(1.0, 0.0, 0.5);
     glEnd();
-    glDisable(GL_TEXTURE_2D);
 //bantal
     glBegin(GL_QUADS);
     glColor3ub(255, 255, 255);
@@ -757,66 +676,62 @@ glBindTexture(GL_TEXTURE_2D, textureBed);
     glEnd();
 
  //laci meja
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textureLaci);
     //depan
     glBegin(GL_QUADS); //+8
     glColor3ub(34, 139, 34); // Warna hijau lumut
-    glTexCoord2f (0.0, 0.0); glVertex3f(-12.0, -0.5, 15.5);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-12.0, -5.5, 15.5);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-12.0, -5.5, 10.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-12.0, -0.5, 10.0);
+    glVertex3f(-12.0, -0.5, 15.5);
+    glVertex3f(-12.0, -5.5, 15.5);
+    glVertex3f(-12.0, -5.5, 10.0);
+    glVertex3f(-12.0, -0.5, 10.0);
     glEnd();
     //belakang
     glBegin(GL_QUADS); //+8
     glColor3ub(34, 139, 34); // Warna hijau lumut
-    glTexCoord2f (0.0, 0.0); glVertex3f(-14.5, -0.5, 15.5);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-14.5, -5.5, 15.5);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-14.5, -5.5, 10.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-14.5, -0.5, 10.0);
+    glVertex3f(-14.5, -0.5, 15.5);
+    glVertex3f(-14.5, -5.5, 15.5);
+    glVertex3f(-14.5, -5.5, 10.0);
+    glVertex3f(-14.5, -0.5, 10.0);
     glEnd();
     //kanan
     glBegin(GL_QUADS); //+8
     glColor3ub(34, 139, 34); // Warna hijau lumut
-    glTexCoord2f (0.0, 0.0); glVertex3f(-12.0, -0.5, 10.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-12.0, -5.5, 10.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-14.5, -5.5, 10.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-14.5, -0.5, 10.0);
+    glVertex3f(-12.0, -0.5, 10.0);
+    glVertex3f(-12.0, -5.5, 10.0);
+    glVertex3f(-14.5, -5.5, 10.0);
+    glVertex3f(-14.5, -0.5, 10.0);
     glEnd();
     //kiri
     glBegin(GL_QUADS); //+8
     glColor3ub(34, 139, 34); // Warna hijau lumut
-    glTexCoord2f (0.0, 0.0); glVertex3f(-12.0, -0.5, 15.5);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-12.0, -5.5, 15.5);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-14.5, -5.5, 15.5);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-14.5, -0.5, 15.5);
+    glVertex3f(-12.0, -0.5, 15.5);
+    glVertex3f(-12.0, -5.5, 15.5);
+    glVertex3f(-14.5, -5.5, 15.5);
+    glVertex3f(-14.5, -0.5, 15.5);
     glEnd();
     //atas
     glBegin(GL_QUADS); //+8
     glColor3ub(173, 216, 230); // Warna hijau telur bebek
-    glTexCoord2f (0.0, 0.0); glVertex3f(-14.5, -0.5, 15.5);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-12.0, -0.5, 15.5);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-12.0, -0.5, 10.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-14.5, -0.5, 10.0);
+    glVertex3f(-14.5, -0.5, 15.5);
+    glVertex3f(-12.0, -0.5, 15.5);
+    glVertex3f(-12.0, -0.5, 10.0);
+    glVertex3f(-14.5, -0.5, 10.0);
     glEnd();
     //aksesors1
     glBegin(GL_QUADS); //+8
     glColor3ub(173, 216, 230); // Warna hijau telur bebek
-    glTexCoord2f (0.0, 0.0); glVertex3f(-11.8, -1.0, 15.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-11.8, -2.0, 15.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-11.8, -2.0, 10.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-11.8, -1.0, 10.0);
-    glEnd();
-    //aksesors1
-    glBegin(GL_QUADS); //+8
-    glColor3ub(173, 216, 230); // Warna hijau telur bebek
-    glTexCoord2f (0.0, 0.0); glVertex3f(-11.8, -2.5, 15.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-11.8, -4.5, 15.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-11.8, -4.5, 10.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-11.8, -2.5, 10.0);
+    glVertex3f(-11.8, -1.0, 15.0);
+    glVertex3f(-11.8, -2.0, 15.0);
+    glVertex3f(-11.8, -2.0, 10.0);
+    glVertex3f(-11.8, -1.0, 10.0);
     glEnd();
 
-    glDisable(GL_TEXTURE_2D);
+    glBegin(GL_QUADS); //+8
+    glColor3ub(173, 216, 230); // Warna hijau telur bebek
+    glVertex3f(-11.8, -2.5, 15.0);
+    glVertex3f(-11.8, -4.5, 15.0);
+    glVertex3f(-11.8, -4.5, 10.0);
+    glVertex3f(-11.8, -2.5, 10.0);
+    glEnd();
 
  //kaca
   //batang kiri
@@ -945,61 +860,54 @@ glBindTexture(GL_TEXTURE_2D, textureBed);
     glEnd();
 
 //pintu
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texturePintu1);
     //depan
     glBegin(GL_QUADS);
     glColor3ub(163, 131, 91);
-    glTexCoord2f (0.0, 0.0); glVertex3f(-14.5, 10.0, -9.5);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-14.5, -6.0, -9.5);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-9.0, -6.0, -9.5);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-9.0, 10.0, -9.5);
+    glVertex3f(-14.5, 10.0, -9.5);
+    glVertex3f(-14.5, -6.0, -9.5);
+    glVertex3f(-9.0, -6.0, -9.5);
+    glVertex3f(-9.0, 10.0, -9.5);
     glEnd();
     //kanan
     glBegin(GL_QUADS);
     glColor3ub(163, 131, 91);
-    glTexCoord2f (0.0, 0.0); glVertex3f(-9.0, 10.0, -9.5);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-9.0, -6.0, -9.5);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-9.0, -6.0, -10.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-9.0, 10.0, -10.0);
+    glVertex3f(-9.0, 10.0, -9.5);
+    glVertex3f(-9.0, -6.0, -9.5);
+    glVertex3f(-9.0, -6.0, -10.0);
+    glVertex3f(-9.0, 10.0, -10.0);
     glEnd();
      //kiri
     glBegin(GL_QUADS);
     glColor3ub(163, 131, 91);
-    glTexCoord2f (0.0, 0.0); glVertex3f(-14.5, 10.0, -9.5);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-14.5, -6.0, -9.5);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-14.5, -6.0, -10.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-14.5, 10.0, -10.0);
+    glVertex3f(-14.5, 10.0, -9.5);
+    glVertex3f(-14.5, -6.0, -9.5);
+    glVertex3f(-14.5, -6.0, -10.0);
+    glVertex3f(-14.5, 10.0, -10.0);
     glEnd();
      //atas
     glBegin(GL_QUADS);
     glColor3ub(163, 131, 91);
-    glTexCoord2f (0.0, 0.0); glVertex3f(-14.5, 10.0, -9.5);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-14.5, 10.0, -10.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-9.0, 10.0, -10.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-9.0, 10.0, -9.5);
+    glVertex3f(-14.5, 10.0, -9.5);
+    glVertex3f(-14.5, 10.0, -10.0);
+    glVertex3f(-9.0, 10.0, -10.0);
+    glVertex3f(-9.0, 10.0, -9.5);
     glEnd();
-    glDisable(GL_TEXTURE_2D);
-
     //aksesoris
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texturePintu2);
     glBegin(GL_QUADS);
     glColor3ub(173, 216, 230); // Warna hijau telur bebek
-    glTexCoord2f (0.0, 0.0); glVertex3f(-13.5, 8.0, -9.4);
-    glTexCoord2f (0.0, 0.0); glVertex3f(-13.5, 4.0, -9.4);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-10.0, 4.0, -9.4);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-10.0, 8.0, -9.4);
+    glVertex3f(-13.5, 8.0, -9.4);
+    glVertex3f(-13.5, 4.0, -9.4);
+    glVertex3f(-10.0, 4.0, -9.4);
+    glVertex3f(-10.0, 8.0, -9.4);
     glEnd();
 
     glBegin(GL_QUADS);
     glColor3ub(173, 216, 230); // Warna hijau telur bebek
-    glTexCoord2f (0.0, 0.0); glVertex3f(-13.5, 3.0, -9.4);
-    glTexCoord2f (0.0, 1.0); glVertex3f(-13.5, -4.0, -9.4);
-    glTexCoord2f (1.0, 1.0); glVertex3f(-10.0, -4.0, -9.4);
-    glTexCoord2f (1.0, 0.0); glVertex3f(-10.0, 3.0, -9.4);
+    glVertex3f(-13.5, 3.0, -9.4);
+    glVertex3f(-13.5, -4.0, -9.4);
+    glVertex3f(-10.0, -4.0, -9.4);
+    glVertex3f(-10.0, 3.0, -9.4);
     glEnd();
-    glDisable(GL_TEXTURE_2D);
 
     //pegangan
     glBegin(GL_QUADS);
@@ -1700,90 +1608,81 @@ glBindTexture(GL_TEXTURE_2D, textureBed);
     glEnd();
 
 //lomari baju
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textureLemari);
     //depan
     glBegin(GL_QUADS);
     glColor3ub(173, 216, 230); // Warna hijau telur bebek
-    glTexCoord2f (0.0, 0.0); glVertex3f(13.0, 10.0, -6.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(13.0, -6.0, -6.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(8.0, -6.0, -6.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(8.0, 10.0, -6.0);
+    glVertex3f(13.0, 10.0, -6.0);
+    glVertex3f(13.0, -6.0, -6.0);
+    glVertex3f(8.0, -6.0, -6.0);
+    glVertex3f(8.0, 10.0, -6.0);
     glEnd();
     //kanan
     glBegin(GL_QUADS);
     glColor3ub(99, 160, 63); // Warna hijau telur bebek tua
-    glTexCoord2f (0.0, 0.0); glVertex3f(13.0, 10.5, -10.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(13.0, -6.0, -10.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(13.0, -6.0, -6.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(13.0, 10.5, -6.0);
+    glVertex3f(13.0, 10.5, -10.0);
+    glVertex3f(13.0, -6.0, -10.0);
+    glVertex3f(13.0, -6.0, -6.0);
+    glVertex3f(13.0, 10.5, -6.0);
     glEnd();
-
     glBegin(GL_QUADS);
     glColor3ub(99, 160, 63); // Warna hijau telur bebek tua
-    glTexCoord2f (0.0, 0.0); glVertex3f(13.3, 10.5, -10.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(13.3, -6.0, -10.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(13.3, -6.0, -6.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(13.3, 10.5, -6.0);
+    glVertex3f(13.3, 10.5, -10.0);
+    glVertex3f(13.3, -6.0, -10.0);
+    glVertex3f(13.3, -6.0, -6.0);
+    glVertex3f(13.3, 10.5, -6.0);
     glEnd();
-
     glBegin(GL_QUADS);
     glColor3ub(99, 160, 63); // Warna hijau telur bebek tua
-    glTexCoord2f (0.0, 0.0); glVertex3f(13.0, 10.5, -10.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(13.0, 10.5, -6.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(13.3, 10.5, -6.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(13.3, 10.5, -10.0);
+    glVertex3f(13.0, 10.5, -10.0);
+    glVertex3f(13.0, 10.5, -6.0);
+    glVertex3f(13.3, 10.5, -6.0);
+    glVertex3f(13.3, 10.5, -10.0);
     glEnd();
-
     glBegin(GL_QUADS);
     glColor3ub(99, 160, 63); // Warna hijau telur bebek tua
-    glTexCoord2f (0.0, 0.0); glVertex3f(13.0, 10.5, -6.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(13.0, 10.0, -6.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(13.3, 10.0, -6.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(13.3, 10.5, -6.0);
+    glVertex3f(13.0, 10.5, -6.0);
+    glVertex3f(13.0, 10.0, -6.0);
+    glVertex3f(13.3, 10.0, -6.0);
+    glVertex3f(13.3, 10.5, -6.0);
     glEnd();
     //kiri
     glBegin(GL_QUADS);
     glColor3ub(99, 160, 63); // Warna hijau telur bebek tua
-    glTexCoord2f (0.0, 0.0); glVertex3f(8.0, 10.5, -10.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(8.0, -6.0, -10.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(8.0, -6.0, -6.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(8.0, 10.5, -6.0);
+    glVertex3f(8.0, 10.5, -10.0);
+    glVertex3f(8.0, -6.0, -10.0);
+    glVertex3f(8.0, -6.0, -6.0);
+    glVertex3f(8.0, 10.5, -6.0);
     glEnd();
-
     glBegin(GL_QUADS);
     glColor3ub(99, 160, 63); // Warna hijau telur bebek tua
-    glTexCoord2f (0.0, 0.0); glVertex3f(7.7, 10.5, -10.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(7.7, -6.0, -10.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(7.7, -6.0, -6.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(7.7, 10.5, -6.0);
+    glVertex3f(7.7, 10.5, -10.0);
+    glVertex3f(7.7, -6.0, -10.0);
+    glVertex3f(7.7, -6.0, -6.0);
+    glVertex3f(7.7, 10.5, -6.0);
     glEnd();
-
     glBegin(GL_QUADS);
     glColor3ub(99, 160, 63); // Warna hijau telur bebek tua
-    glTexCoord2f (0.0, 0.0); glVertex3f(8.0, 10.5, -10.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(8.0, 10.5, -6.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(7.7, 10.5, -6.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(7.7, 10.5, -10.0);
+    glVertex3f(8.0, 10.5, -10.0);
+    glVertex3f(8.0, 10.5, -6.0);
+    glVertex3f(7.7, 10.5, -6.0);
+    glVertex3f(7.7, 10.5, -10.0);
     glEnd();
-
     glBegin(GL_QUADS);
     glColor3ub(99, 160, 63); // Warna hijau telur bebek tua
-    glTexCoord2f (0.0, 0.0); glVertex3f(8.0, 10.5, -6.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(8.0, -6.0, -6.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(7.7, -6.0, -6.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(7.7, 10.5, -6.0);
+    glVertex3f(8.0, 10.5, -6.0);
+    glVertex3f(8.0, -6.0, -6.0);
+    glVertex3f(7.7, -6.0, -6.0);
+    glVertex3f(7.7, 10.5, -6.0);
     glEnd();
     //atas
     //depan
     glBegin(GL_QUADS);
     glColor3ub(99, 160, 63); // Warna hijau telur bebek tua
-    glTexCoord2f (0.0, 0.0); glVertex3f(13.0, 10.0, -10.0);
-    glTexCoord2f (0.0, 1.0); glVertex3f(13.0, 10.0, -6.0);
-    glTexCoord2f (1.0, 1.0); glVertex3f(8.0, 10.0, -6.0);
-    glTexCoord2f (1.0, 0.0); glVertex3f(8.0, 10.0, -10.0);
+    glVertex3f(13.0, 10.0, -10.0);
+    glVertex3f(13.0, 10.0, -6.0);
+    glVertex3f(8.0, 10.0, -6.0);
+    glVertex3f(8.0, 10.0, -10.0);
     glEnd();
-    glDisable(GL_TEXTURE_2D);
     //garis
     glBegin(GL_QUADS);
     glColor3ub(99, 160, 63); // Warna hijau telur bebek tua
@@ -1801,8 +1700,39 @@ glBindTexture(GL_TEXTURE_2D, textureBed);
     glVertex3f(10.2, 5.0, -5.9);
     glEnd();
 
-glFlush();
 glutSwapBuffers();
+}
+
+TextureIDs loadTextures() {
+    TextureIDs textures;
+    glGenTextures(1, &textures.floor);
+    glBindTexture(GL_TEXTURE_2D, textures.floor);
+
+    // Memuat tekstur lantai
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load("floor.jpg", &width, &height, &nrChannels, 0);
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+    } else {
+        std::cerr << "Failed to load floor texture" << std::endl;
+    }
+    stbi_image_free(data);
+
+    glGenTextures(1, &textures.wall);
+    glBindTexture(GL_TEXTURE_2D, textures.wall);
+
+    // Memuat tekstur tembok
+    data = stbi_load("tembok.jpg", &width, &height, &nrChannels, 0);
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+    } else {
+        std::cerr << "Failed to load wall texture" << std::endl;
+    }
+    stbi_image_free(data);
+
+    return textures;
 }
 
 void light() {
@@ -1915,30 +1845,35 @@ switch (key)
         l_on3=!l_on3;
         break;
     case '4':
-        l_on4= !l_on4;
+         l_on4 = !l_on4;
+    if (l_on4) {
+        l_on1 = false;
+        l_on2 = false;
+        l_on3 = false;
+    }
     break;
-case 'a':
- case 'A':
+case 'd':
+ case 'D':
  glTranslated(-1.0, 0.0, 0.0);//geser kiri
  break;
- case 'd':
- case 'D':
+ case 'a':
+ case 'A':
  glTranslated(1.0, 0.0, 0.0);//geser kanan
- break;
- case 'q':
- case 'Q':
- glTranslated(0.0, 1.0, 0.0);//geser atas
- break;
- case 'e':
- case 'E':
- glTranslated(0.0, -1.0, 0.0);//geser bawah
  break;
  case 's':
  case 'S':
- glTranslated(0.0, 0.0, -1.0);//dalam objek
+ glTranslated(0.0, 1.0, 0.0);//geser atas
  break;
  case 'w':
  case 'W':
+ glTranslated(0.0, -1.0, 0.0);//geser bawah
+ break;
+ case 'q':
+ case 'Q':
+ glTranslated(0.0, 0.0, -1.0);//dalam objek
+ break;
+ case 'e':
+ case 'E':
  glTranslated(0.0, 0.0, 1.0);//keluar objek
  break;
  case 'i':

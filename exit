@@ -1,0 +1,35 @@
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	deleted:    Project2.layout
+	deleted:    README.md
+	deleted:    bata.jpg
+	deleted:    bed.jpg
+	deleted:    kamar11.cbp
+	deleted:    kamar11.depend
+	deleted:    kamar11.layout
+	deleted:    kamarkuuu.cbp
+	deleted:    kamarkuuu.depend
+	deleted:    kamarkuuu.layout
+	deleted:    kayu.jpg
+	deleted:    lantai.jpg
+	modified:   main.cpp
+	deleted:    pintu1.jpg
+	deleted:    pintu2.jpg
+	deleted:    selimutt.jpg
+	modified:   stb_image.h
+	deleted:    tembok.jpg
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	assets/
+	bin/
+	exit
+	include/
+	obj/
+	src/
+
+no changes added to commit (use "git add" and/or "git commit -a")
