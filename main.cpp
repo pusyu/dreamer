@@ -19,31 +19,23 @@ bool l_on3 = false;
 bool l_on4 = false;
 double spt_cutoff=40;
 
-//variabel global untuk menimpan ID tekstur
+//variabel global untuk menyimpan ID tekstur
 GLuint textureLantai;
-
-//variabel global untuk menimpan ID tekstur
+//variabel global untuk menyimpan ID tekstur
 GLuint textureBata; 
-
-//variabel global untuk menimpan ID tekstur
+//variabel global untuk menyimpan ID tekstur
 GLuint textureTembok;
-
-//variabel global untuk menimpan ID tekstur
+//variabel global untuk menyimpan ID tekstur
 GLuint textureBed;
-
-//variabel global untuk menimpan ID tekstur
+//variabel global untuk menyimpan ID tekstur
 GLuint textureKasur;
-
-//variabel global untuk menimpan ID tekstur
+//variabel global untuk menyimpan ID tekstur
 GLuint textureLaci;
-
-//variabel global untuk menimpan ID tekstur
+//variabel global untuk menyimpan ID tekstur
 GLuint textureLemari;
-
-//variabel global untuk menimpan ID tekstur
+//variabel global untuk menyimpan ID tekstur
 GLuint texturePintu1;
-
-//variabel global untuk menimpan ID tekstur
+//variabel global untuk menyimpan ID tekstur
 GLuint texturePintu2;
 
 GLuint loadTexture(const char *filename) {
@@ -66,6 +58,53 @@ GLuint loadTexture(const char *filename) {
     }
     return texture;
 }
+
+//Deklarasi fungsi mouse agar gambar 3d dapat diputar menggunakan mouse
+float xrot =0;
+float yrot =0;
+float xdiff =0;
+float ydiff =0;
+bool mouseDown = false;
+
+//Deklarasi pengaturan lembaran kerja gambar 3d yang kita buat saat diputar atau digeser tidak berantakan
+void ukur(int lebar, int tinggi){
+    if(tinggi==0) tinggi=1;
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45,lebar/tinggi, 5,450);
+    glTranslatef(0,0,-300); //jarak objek dari lembaran kertas
+    glMatrixMode(GL_MODELVIEW);
+}
+void myinit(void){
+    glClearColor(0.0,0.0,0.0,0.0);
+    glMatrixMode(GL_PROJECTION);
+    glEnable(GL_DEPTH_TEST);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPointSize(10.0);
+    glLineWidth(7.0f);
+}
+
+void mouse(int button, int state, int x, int y)
+{
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    {
+        mouseDown = true;
+        xdiff = x - yrot;
+        ydiff = -y + xrot;
+    }
+    else
+    mouseDown = false;
+}
+
+void mouseMotion(int x, int y) {
+    if (mouseDown) {
+        float sensitivity = 0.005; // Adjust this value to change sensitivity
+            yrot = (x - xdiff) * sensitivity;
+            xrot = (y - ydiff) * sensitivity;
+        }
+        glutPostRedisplay();
+    }
 
 //deklarasi fungsi
 void display();
@@ -92,6 +131,8 @@ int main (int argc, char** argv){
 glutDisplayFunc(display); //memanggil fungsi display
 glutReshapeFunc(reshape); //memanggil fungsi reshape
 glutKeyboardFunc(keyboard); // +3 memanggil fungsi keyboard
+glutMouseFunc(mouse); //fungsi mouse
+glutMotionFunc(mouseMotion); //fungsi pergerakan mous
 
 init();
 glutMainLoop(); //looping program utama
@@ -102,21 +143,26 @@ void init(){
  glClearColor(0.0, 0.0, 0.0, 1.0);
  glEnable(GL_TEXTURE_2D);
 
- textureLantai = loadTexture("assets/lantai.jpg");
- textureBata = loadTexture("assets/bata.jpg");
- textureTembok = loadTexture("assets/tembok.jpg");
- textureBed = loadTexture("assets/bed.jpg");
- textureKasur = loadTexture("assets/selimutt.jpg");
- textureLaci = loadTexture("assets/kayu.jpg");
- textureLemari = loadTexture("assets/kayu.jpg");
- texturePintu1 = loadTexture("assets/pintu1.jpg");
- texturePintu2 = loadTexture("assets/pintu2.jpg");
+ textureLantai = loadTexture("lantai.jpg");
+ textureBata = loadTexture("bata.jpg");
+ textureTembok = loadTexture("tembok.jpg");
+ textureBed = loadTexture("bed.jpg");
+ textureKasur = loadTexture("selimutt.jpg");
+ textureLaci = loadTexture("kayu.jpg");
+ textureLemari = loadTexture("kayu.jpg");
+ texturePintu1 = loadTexture("pintu1.jpg");
+ texturePintu2 = loadTexture("pintu2.jpg");
 }
 
 void display(){
  //reset
  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //+5
  light();
+ glLoadIdentity;
+
+ //rotasi objek berdasarkan nilai xrot dan yrot
+ glRotatef(xrot, 1.0, 0.0, 0.0);
+ glRotatef(yrot, 0.0, 1.0, 0.0);
 
 // Aktifkan tekstur
     glEnable(GL_TEXTURE_2D);
@@ -1943,20 +1989,21 @@ case 'a':
  break;
  case 'i':
  case 'I':
- glRotatef(2.0, 1.0, 0.0, 0.0);//rotate kanan
+ glRotatef(2.0, 1.0, 0.0, 0.0);//rotate atas
  break;
  case 'k':
  case 'K':
- glRotatef(2.0, -1.0, 0.0, 0.0);//rotate kanan
+ glRotatef(2.0, -1.0, 0.0, 0.0);//rotate bawah
  break;
  case 'j':
  case 'J':
-  glRotatef(2.0, 0.0, 1.0, 0.0);//rotate atas
+  glRotatef(2.0, 0.0, 1.0, 0.0);//rotate kiri
  break;
  case 'l':
  case 'L':
-  glRotatef(2.0, 0.0, -1.0, 0.0);//rotate atas
+  glRotatef(2.0, 0.0, -1.0, 0.0);//rotate kanan
  break;
 }
+
 glutPostRedisplay(); //memanggil fungsi display atau bisa pakai glutPostRedisplay();
 }
